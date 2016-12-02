@@ -5,10 +5,8 @@ $(document).ready(function() {
 
   router.set("list", {
     template: "list.html",
-    callback: function(bindings) {
-      return {
-        name: "foobar"
-      };
+    callback: function() {
+      return getList();
     }
   })
   .set("register", {
@@ -26,6 +24,13 @@ $(document).ready(function() {
   })
   .setTemplateDir("templates")
   .run();
+
+  function getList() {
+    return $.ajax("/api/list", {
+      method: "get",
+      dataType: "json"
+    });
+  }
 
 });
 

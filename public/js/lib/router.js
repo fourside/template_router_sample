@@ -76,7 +76,12 @@ Router.prototype.loadTemplate = function () {
   if (typeof(callback) === "function") {
     var ret = callback.call(config, config.bindings, pathParams);
     if (ret !== undefined) {
-      config.bindings = ret;
+      // return value must to be promise
+      ret.done(function(data) {
+        config.bindings = data;
+      }).fail(function(error) {
+        console.log(error);
+      });
     }
   }
   var _self = this;
