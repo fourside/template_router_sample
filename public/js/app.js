@@ -28,7 +28,10 @@ $(document).ready(function() {
   function getList() {
     return $.ajax("/api/list", {
       method: "get",
-      dataType: "json"
+      dataType: "json",
+      error: function(error) {
+        console.log(error);
+      }
     });
   }
 

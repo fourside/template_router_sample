@@ -73,24 +73,32 @@ Router.prototype.loadTemplate = function () {
   var pathParams = this.parseHashParams(key, hash);
 
   var callback = config.callback;
+  var _self = this;
   if (typeof(callback) === "function") {
     var ret = callback.call(config, config.bindings, pathParams);
     if (ret !== undefined) {
       // return value must to be promise
       ret.done(function(data) {
         config.bindings = data;
+        _self.ajaxTemplate(templateName, config.bindings);
       }).fail(function(error) {
         console.log(error);
       });
+      return;
     }
   }
+  this.ajaxTemplate(templateName, config.bindings);
+
+};
+
+Router.prototype.ajaxTemplate = function(templateName, bindings) {
   var _self = this;
   $.ajax(this.templateDir + "/" + templateName, {
     method: "get",
     dataType: "html",
     cache: false,
     success: function(template) {
-      var output = Mustache.render(template, config.bindings);
+      var output = Mustache.render(template, bindings);
       _self.setView(output);
     },
     error: function() {
