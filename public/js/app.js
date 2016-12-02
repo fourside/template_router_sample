@@ -1,9 +1,8 @@
 "use strict"
 
 $(document).ready(function() {
-  var router = new Router();
 
-  router.set("list", {
+  (new Router()).set("list", {
     template: "list.html",
     callback: function() {
       return getList();
@@ -25,15 +24,15 @@ $(document).ready(function() {
   .setTemplateDir("templates")
   .run();
 
-  function getList() {
-    return $.ajax("/api/list", {
-      method: "get",
-      dataType: "json",
-      error: function(error) {
-        console.log(error);
-      }
-    });
-  }
-
 });
+
+function getList() {
+  return $.ajax("/api/list", {
+    method: "get",
+    dataType: "json",
+    error: function(error) {
+      console.log(error);
+    }
+  });
+}
 
