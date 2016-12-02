@@ -1,66 +1,68 @@
 "use strict"
 
-var app = {
-  config: {},
-  routes: {},
-  templateDir: "templates",
-  viewId: "view"
+function Router() {
+  this.config = {};
+  this.routes = {};
+  this.templateDir = "templates";
+  this.viewId = "view";
+}
+
+Router.prototype.set = function(key, conf) {
+  this.config[key] = conf;
+  return this;
 };
 
-app.set = function(key, conf) {
-  app.config[key] = conf;
-  return app;
+Router.prototype.setTemplateDir = function(dir) {
+  this.templateDir = dir;
+  return this;
 };
 
-app.setTemplateDir = function(dir) {
-  app.templateDir = dir;
-  return app;
+Router.prototype.setViewId = function(id) {
+  this.viewId = id;
+  return this;
 };
 
-app.setViewId = function(id) {
-  app.viewId = id;
-  return app;
+Router.prototype.setView = function(content) {
+  $("#" + this.viewId).html(content);
 };
 
-app.setView = function(content) {
-  $("#" + app.viewId).html(content);
-};
+Router.prototype.run = function() {
+  window.onhashchange = this.loadTemplate;
 
-app.run = function() {
-  window.onhashchange = app.loadTemplate;
-
-  Object.keys(app.config).forEach(function(e) {
-    app.routes[e] = new RegExp("^" + e.replace(/:[^/]+/g, "(.+)") + "$");
+  var _self = this;
+  Object.keys(this.config).forEach(function(e) {
+    _self.routes[e] = new RegExp("^" + e.replace(/:[^/]+/g, "(.+)") + "$");
   });
 
   // call once at loading first.
-  app.loadTemplate();
+  this.loadTemplate();
 };
 
-app.getRouteKey = function(hash) {
-  var routeKeys = Object.keys(app.routes).filter(function(e) {
-      return app.routes[e].test(hash);
+Router.prototype.getRouteKey = function(hash) {
+  var _self = this;
+  var routeKeys = Object.keys(this.routes).filter(function(e) {
+      return _self.routes[e].test(hash);
   });
   if (routeKeys.length > 0) {
     return routeKeys[0];
   }
 };
 
-app.loadTemplate = function () {
+Router.prototype.loadTemplate = function () {
 
   var hash = location.hash.substring(1);
-  var key = app.getRouteKey(hash);
-  var config = app.config[key];
+  var key = this.getRouteKey(hash);
+  var config = this.config[key];
   if (config === undefined) {
     console.log("error: no such route: " + hash);
-    app.setView("");
+    this.setView("");
     return;
   }
 
   var templateName = config.template;
   if (templateName === undefined) {
     console.log("error: not set template: " + key);
-    app.setView("");
+    this.setView("");
     return;
   }
 
@@ -68,7 +70,7 @@ app.loadTemplate = function () {
     config.bindings = {};
   }
 
-  var pathParams = app.parseHashParams(key, hash);
+  var pathParams = this.parseHashParams(key, hash);
 
   var callback = config.callback;
   if (typeof(callback) === "function") {
@@ -77,13 +79,14 @@ app.loadTemplate = function () {
       config.bindings = ret;
     }
   }
-  $.ajax(app.templateDir + "/" + templateName, {
+  var _self = this;
+  $.ajax(this.templateDir + "/" + templateName, {
     method: "get",
     dataType: "html",
     cache: false,
     success: function(template) {
       var output = Mustache.render(template, config.bindings);
-      app.setView(output);
+      _self.setView(output);
     },
     error: function() {
       console.log("error: cant find template: " + templateName);
@@ -91,7 +94,7 @@ app.loadTemplate = function () {
   });
 };
 
-app.parseHashParams = function(route, hash) {
+Router.prototype.parseHashParams = function(route, hash) {
   var keys = route.split("/").filter(function(e) {
     return e.charAt(0) === ":";
   }).map(function(e) {
@@ -100,7 +103,7 @@ app.parseHashParams = function(route, hash) {
   if (keys.length === 0) {
     return;
   }
-  var values = app.routes[route].exec(hash);
+  var values = this.routes[route].exec(hash);
   if (values === null) {
     return;
   }
