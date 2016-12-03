@@ -5,6 +5,8 @@ function Router() {
   this.routes = {};
   this.templateDir = "templates";
   this.viewId = "view";
+  this.viewElement;
+  this.routeKeys = [];
 }
 
 Router.prototype.set = function(key, conf) {
@@ -23,15 +25,18 @@ Router.prototype.setViewId = function(id) {
 };
 
 Router.prototype.setView = function(content) {
-  $("#" + this.viewId).html(content);
+  this.viewElement.html(content);
 };
 
 Router.prototype.run = function() {
   window.onhashchange = this.loadTemplate;
 
+  this.viewElement = $("#" + this.viewId);
+
   var _self = this;
-  Object.keys(this.config).forEach(function(e) {
+  Object.keys(this.config).sort().forEach(function(e) {
     _self.routes[e] = new RegExp("^" + e.replace(/:[^/]+/g, "(.+)") + "$");
+    _self.routeKeys.push(e);
   });
 
   // call once at loading first.
@@ -39,12 +44,10 @@ Router.prototype.run = function() {
 };
 
 Router.prototype.getRouteKey = function(hash) {
-  var _self = this;
-  var routeKeys = Object.keys(this.routes).filter(function(e) {
-      return _self.routes[e].test(hash);
-  });
-  if (routeKeys.length > 0) {
-    return routeKeys[0];
+  for (var i=0; this.routeKeys.length > i; i++) {
+    if (this.routes[this.routeKeys[i]].test(hash)) {
+      return this.routeKeys[i];
+    }
   }
 };
 
@@ -75,20 +78,27 @@ Router.prototype.loadTemplate = function () {
   var callback = config.callback;
   var _self = this;
   if (typeof(callback) === "function") {
-    var ret = callback.call(config, config.bindings, pathParams);
-    if (ret !== undefined) {
-      // return value must to be promise
-      ret.done(function(data) {
-        config.bindings = data;
-        _self.ajaxTemplate(templateName, config.bindings);
-      }).fail(function(error) {
-        console.log(error);
+    var promise = callback.call(config, config.bindings, pathParams);
+    if (promise !== undefined && typeof(promise.done === "function")) {
+      promise.done(function(data) {
+        var obj = _self.merge(config.bindings, data);
+        _self.ajaxTemplate(templateName, obj);
       });
-      return;
-    }
+    });
+    return;
   }
   this.ajaxTemplate(templateName, config.bindings);
+};
 
+Router.prototype.merge = function(obj1, obj2) {
+  var obj;
+  if (typeof(Object.assign) === 'function') {
+    obj = Object.assign(true, {}, obj1, obj2);
+  } else {
+    // when IE11
+    obj = $.extend(true, {}, obj1, obj2);
+  }
+  return obj;
 };
 
 Router.prototype.ajaxTemplate = function(templateName, bindings) {

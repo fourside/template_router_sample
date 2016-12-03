@@ -4,7 +4,8 @@ $(document).ready(function() {
 
   (new Router()).set("list", {
     template: "list.html",
-    callback: function() {
+    callback: function(bindings) {
+      bindings.title = "list is below:";
       return getList();
     }
   })
@@ -30,6 +31,9 @@ function getList() {
   return $.ajax("/api/list", {
     method: "get",
     dataType: "json",
+    success: function(xhr) {
+      console.log("in success")
+    },
     error: function(error) {
       console.log(error);
     }
