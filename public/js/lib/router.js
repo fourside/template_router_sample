@@ -25,13 +25,13 @@ Router.prototype.setViewId = function(id) {
 };
 
 Router.prototype.setView = function(content) {
-  this.viewElement.html(content);
+  this.viewElement.innerHTML = content;
 };
 
 Router.prototype.run = function() {
   window.onhashchange = this.loadTemplate;
 
-  this.viewElement = $("#" + this.viewId);
+  this.viewElement = document.getElementById(this.viewId);
 
   var _self = this;
   Object.keys(this.config).sort().forEach(function(e) {
@@ -84,7 +84,7 @@ Router.prototype.loadTemplate = function () {
         var obj = _self.merge(config.bindings, data);
         _self.ajaxTemplate(templateName, obj);
       });
-    });
+    };
     return;
   }
   this.ajaxTemplate(templateName, config.bindings);
