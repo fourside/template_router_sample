@@ -84,8 +84,8 @@ Router.prototype.loadTemplate = function () {
         var obj = _self.merge(config.bindings, data);
         _self.ajaxTemplate(templateName, obj);
       });
+      return;
     };
-    return;
   }
   this.ajaxTemplate(templateName, config.bindings);
 };
