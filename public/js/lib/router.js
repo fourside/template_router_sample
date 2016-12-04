@@ -77,9 +77,9 @@ Router.prototype.loadTemplate = function () {
 
   var callback = config.callback;
   var _self = this;
-  if (typeof(callback) === "function") {
+  if (typeof callback  === "function") {
     var promise = callback.call(config, config.bindings, pathParams);
-    if (promise !== undefined && typeof(promise.done === "function")) {
+    if (promise !== undefined && typeof promise.done === "function") {
       promise.done(function(data) {
         var obj = _self.merge(config.bindings, data);
         _self.ajaxTemplate(templateName, obj);
@@ -92,7 +92,7 @@ Router.prototype.loadTemplate = function () {
 
 Router.prototype.merge = function(obj1, obj2) {
   var obj;
-  if (typeof(Object.assign) === 'function') {
+  if (typeof Object.assign  === 'function') {
     obj = Object.assign(true, {}, obj1, obj2);
   } else {
     // when IE11
@@ -131,10 +131,10 @@ Router.prototype.parseHashParams = function(route, hash) {
     return;
   }
   values.shift();
-  var result = {};
-  for (var i=0; keys.length > i; i++) {
-    result[keys[i]] = values[i];
-  }
-  return result;
+  var params = {};
+  keys.forEach(function(key, index) {
+    params[key] = values[index];
+  });
+  return params;
 };
 
