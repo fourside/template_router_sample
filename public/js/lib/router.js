@@ -29,15 +29,17 @@ Router.prototype.setView = function(content) {
 };
 
 Router.prototype.run = function() {
-  window.onhashchange = this.loadTemplate;
 
   this.viewElement = document.getElementById(this.viewId);
 
   var _self = this;
+  window.onhashchange = function() {
+    _self.loadTemplate();
+  };
   Object.keys(this.config).sort().forEach(function(e) {
-    _self.routes[e] = new RegExp("^" + e.replace(/:[^/]+/g, "(.+)") + "$");
-    _self.routeKeys.push(e);
-  });
+    this.routes[e] = new RegExp("^" + e.replace(/:[^/]+/g, "(.+)") + "$");
+    this.routeKeys.push(e);
+  }, this);
 
   // call once at loading first.
   this.loadTemplate();
