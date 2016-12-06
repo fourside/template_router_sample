@@ -81,8 +81,8 @@ Router.prototype.loadTemplate = function () {
   var _self = this;
   if (typeof callback  === "function") {
     var promise = callback.call(config, config.bindings, pathParams);
-    if (promise !== undefined && typeof promise.done === "function") {
-      promise.done(function(data) {
+    if (promise !== undefined && typeof promise.then === "function") {
+      promise.then(function(data) {
         var obj = _self.merge(config.bindings, data);
         _self.ajaxTemplate(templateName, obj);
       });
@@ -92,13 +92,19 @@ Router.prototype.loadTemplate = function () {
   this.ajaxTemplate(templateName, config.bindings);
 };
 
-Router.prototype.merge = function(obj1, obj2) {
+Router.prototype.merge = function(bindings, data) {
+  var params = [true, {}, bindings];
+  if (Array.isArray(data)) {
+    params = params.concat(data);
+  } else {
+    params.push(data);
+  }
   var obj;
   if (typeof Object.assign  === 'function') {
-    obj = Object.assign(true, {}, obj1, obj2);
+    obj = Object.assign.apply(Object, params);
   } else {
     // when IE11
-    obj = $.extend(true, {}, obj1, obj2);
+    obj = $.extend.apply($, params);
   }
   return obj;
 };

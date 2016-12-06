@@ -6,7 +6,10 @@ $(document).ready(function() {
     template: "list.html",
     callback: function(bindings) {
       bindings.title = "list is below:";
-      return getList();
+      return Promise.all([
+          getList(),
+          getCategory()
+      ]);
     }
   })
   .set("register", {
@@ -32,7 +35,7 @@ function getList() {
     method: "get",
     dataType: "json",
     success: function(xhr) {
-      console.log("in success")
+      console.log("in success at getList")
     },
     error: function(error) {
       console.log(error);
@@ -40,3 +43,12 @@ function getList() {
   });
 }
 
+function getCategory() {
+  return $.ajax("/api/category", {
+    method: "get",
+    dataType: "json",
+    success: function(xhr) {
+      console.log("in success at getCategory")
+    },
+  });
+}
