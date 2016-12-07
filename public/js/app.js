@@ -6,6 +6,11 @@ $(document).ready(function() {
     template: "list.html",
     callback: function(bindings) {
       bindings.title = "list is below:";
+      bindings.selected = function() {
+        return function(title, render) {
+          return this.title === render(title) ? "selected" : "";
+        };
+      };
       return Promise.all([
           getList(),
           getCategory()
