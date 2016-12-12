@@ -84,12 +84,12 @@ Router.prototype.loadTemplate = function () {
     if (promise !== undefined && typeof promise.then === "function") {
       promise.then(function(data) {
         var obj = _self.merge(config.bindings, data);
-        _self.ajaxTemplate(templateName, obj);
+        _self.ajaxTemplate(templateName, obj, config);
       });
       return;
     };
   }
-  this.ajaxTemplate(templateName, config.bindings);
+  this.ajaxTemplate(templateName, config.bindings, config);
 };
 
 Router.prototype.merge = function(bindings, data) {
@@ -109,20 +109,28 @@ Router.prototype.merge = function(bindings, data) {
   return obj;
 };
 
-Router.prototype.ajaxTemplate = function(templateName, bindings) {
+Router.prototype.ajaxTemplate = function(templateName, data, config) {
   var _self = this;
   $.ajax(this.templateDir + "/" + templateName, {
     method: "get",
     dataType: "html",
     cache: false,
     success: function(template) {
-      var output = Mustache.render(template, bindings);
+      var output = Mustache.render(template, data);
       _self.setView(output);
+      _self.afterCallback(config);
     },
     error: function() {
       console.log("error: cant find template: " + templateName);
     }
   });
+};
+
+Router.prototype.afterCallback = function(config) {
+  var afterCallback = config.after;
+  if (typeof afterCallback  === "function") {
+    afterCallback.call(config);
+  }
 };
 
 Router.prototype.parseHashParams = function(route, hash) {

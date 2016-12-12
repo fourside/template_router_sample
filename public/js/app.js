@@ -2,7 +2,8 @@
 
 $(document).ready(function() {
 
-  (new Router()).set("list", {
+  var router = new Router();
+  router.set("list", {
     template: "list.html",
     callback: function(bindings) {
       bindings.title = "list is below:";
@@ -15,12 +16,24 @@ $(document).ready(function() {
           getList(),
           getCategory()
       ]);
+    },
+    after: function() {
+      $("#reload").click(function() {
+          router.loadTemplate();
+      });
     }
   })
   .set("register", {
     template: "register.html",
     callback: function(bindings) {
       bindings.title = "hogepiyo";
+    }
+  })
+  .set("search/keyword/:keyword/category/:category", {
+    template: "search.html",
+    callback: function(bindings, params) {
+      bindings.keyword = params.keyword;
+      bindings.category = params.category;
     }
   })
   .set("update/:id", {
@@ -33,6 +46,9 @@ $(document).ready(function() {
   .setTemplateDir("templates")
   .run();
 
+  function reload() {
+    router.loadTemplate();
+  }
 });
 
 function getList() {

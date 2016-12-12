@@ -1,9 +1,14 @@
 <h2>list</h2>
 
-<h3>{{title}}</h3>
-<ul>
+<button id="reload">reload</button>
 {{#list}}
-<li>hello, {{name}}</li>
+<div>
+<h3>{{name}}</h3>
+    <select>
+        {{#category}}
+        <option value="{{title}}" {{#selected}}{{categoryTitle}}{{/selected}}>{{title}}</option>
+        {{/category}}
+    </select>
+</div>
 {{/list}}
-</ul>
 
