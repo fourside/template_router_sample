@@ -37,7 +37,7 @@ Router.prototype.run = function() {
     _self.loadTemplate();
   };
   Object.keys(this.config).sort().forEach(function(e) {
-    this.routes[e] = new RegExp("^" + e.replace(/:[^/]+/g, "(.+)") + "$");
+    this.routes[e] = new RegExp("^" + e.replace(/:[^/]+/g, "([^/]+)") + "$");
     this.routeKeys.push(e);
   }, this);
 
